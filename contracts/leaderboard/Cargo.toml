@@ -1,0 +1,26 @@
+[package]
+name = "leaderboard"
+version.workspace = true
+edition.workspace = true
+description = "Leaderboard contract for Rock-Paper-Scissors — tracks player scores and game history CIDs"
+authors.workspace = true
+homepage.workspace = true
+license.workspace = true
+
+[lib]
+path = "lib.rs"
+
+[[bin]]
+name = "leaderboard"
+path = "lib.rs"
+
+[features]
+abi-gen = ["pvm-contract-sdk/abi-gen"]
+
+[package.metadata.cdm]
+package = "@rps/leaderboard"
+
+[dependencies]
+pvm-contract-sdk = { workspace = true }
+polkavm-derive = { workspace = true }
+picoalloc = { workspace = true }

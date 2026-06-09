@@ -1,0 +1,188 @@
+{
+  "dependencies": {
+    "@rps/leaderboard": "latest"
+  },
+  "contracts": {
+    "@rps/leaderboard": {
+      "version": 0,
+      "address": "0x85aaf18be2D2a482530A822A6722fb17E65f945F",
+      "abi": [
+        {
+          "inputs": [],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "register",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint64"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "new_cid",
+              "type": "string"
+            },
+            {
+              "name": "points_delta",
+              "type": "int64"
+            }
+          ],
+          "name": "updateResult",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getPlayerCount",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint64"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "index",
+              "type": "uint64"
+            }
+          ],
+          "name": "getPlayerAt",
+          "outputs": [
+            {
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "player",
+              "type": "address"
+            }
+          ],
+          "name": "getPlayerCid",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "player",
+              "type": "address"
+            }
+          ],
+          "name": "getPlayerPoints",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "player",
+              "type": "address"
+            }
+          ],
+          "name": "isRegistered",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "Panic",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "name": "Error",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "AlreadyRegistered",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NotRegistered",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "IndexOutOfBounds",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "InvalidCalldata",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "CalldataTooLarge",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NoSelector",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "UnknownSelector",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NonPayableValueReceived",
+          "type": "error"
+        }
+      ],
+      "metadataCid": "bafk2bzacect3ygup6jkp3vcslp26lmlwrwpt5mvugec43o3ivuaho5xlpxmo4"
+    }
+  },
+  "registry": "0xf62c2ece29cd8df2e10040ecfa5a894a5c5d9cb0"
+}

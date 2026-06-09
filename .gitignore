@@ -1,0 +1,27 @@
+node_modules/
+dist/
+target/
+.cdm/
+Cargo.lock
+package-lock.json
+tsconfig.tsbuildinfo
+.claude/skills/
+quests.json
+.DS_Store
+
+# Env files (keep the bare .env covered; allow-list the example)
+.env*
+!.env.example
+
+# AI tool session / local state
+.claude/sessions/
+.claude/cache/
+**/settings.local.json
+.cursor/
+.aider*
+.codeium/
+.dot-mod-setup.log
+.dot-mod-source.log
+
+# Playwright MCP local artifacts
+.playwright-mcp/
