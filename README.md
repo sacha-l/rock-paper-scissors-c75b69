@@ -27,17 +27,68 @@ Scoring: win **+2**, loss **−1**, draw **0**.
 
 ```bash
 npm install
-
-# Dev server
 npm run dev
 ```
-Open polkadot desktop on localhost.
 
-> Deploying **your own copy** (own contract, own `.dot` name, published to the
-> playground)? Follow the step-by-step [DEPLOYMENT.md](./DEPLOYMENT.md).
+Then choose how to run it:
 
-> Account needs PAS tokens on Asset Hub ([faucet](https://faucet.polkadot.io/)) and Bulletin chain ([faucet](https://paritytech.github.io/polkadot-bulletin-chain/authorizations?tab=faucet)).
-> Multiplayer requires running inside the Polkadot Desktop container (Host API).
+- **Offline dev mode (no host, no chain) — `http://localhost:3000/?mock`.**
+  Runs the whole app against an in-memory leaderboard: register, Solo play,
+  profile and leaderboard all work in a plain browser with no Polkadot host,
+  no deploy, no phone, no funding. Use this to build and verify a mod.
+- **Against the live chain — open `http://localhost:3000` in Polkadot Desktop.**
+  Real account, real Asset Hub contract, real Bulletin uploads. Multiplayer
+  requires this (it needs the Host API container).
+  > Account needs PAS on Asset Hub ([faucet](https://faucet.polkadot.io/)) and Bulletin ([faucet](https://paritytech.github.io/polkadot-bulletin-chain/authorizations?tab=faucet)).
+
+## Modding & deploying — the recommended path
+
+The deploy step binds contract ownership to your signer and is irreversible, so
+**verify every change in offline dev mode before you deploy.** That order is the
+whole point: don't burn a phone-signed, funded on-chain deploy to find out a mod
+is broken.
+
+**1. Mod and verify locally (fast, no chain):**
+
+```bash
+npm run dev
+# open http://localhost:3000/?mock and exercise your change end-to-end
+```
+
+**2. Build, then deploy from a real terminal.** Phone signing renders a QR per
+transaction, so the deploy **must** run in your own terminal (a real TTY) with
+your phone — it cannot be backgrounded or driven by an agent. Run it **from this
+app directory**, and always pass `--buildDir dist`:
+
+```bash
+pg build
+# FIRST deploy (contract not yet on-chain) — include --contracts:
+pg deploy --contracts --playground --moddable \
+  --domain <your-domain> --signer phone --buildDir dist
+```
+
+Approve the ~4 prompts on your phone (reserve domain → finalize → link content →
+publish). On success it prints your live `https://<domain>.dot.li` URL.
+
+**3. Iterating on frontend-only changes — skip the contract:** once the contract
+is live, later mods that don't touch `contracts/` can drop `--contracts` (or pass
+`--no-contracts`) for fewer signatures and no ownership step:
+
+```bash
+pg build
+pg deploy --playground --moddable \
+  --domain <your-domain> --signer phone --buildDir dist
+```
+
+**Naming:** the contract package name is read from `cdm.json` (single source of
+truth). It must be a name **owned by, or free for, your signing account** — a
+collision surfaces only at deploy as `already owned by 0x…`; if so, pick a new
+`@<you>/leaderboard` in `cdm.json` (and `contracts/leaderboard/Cargo.toml`),
+rebuild, and redeploy.
+
+> Known tooling gaps in this flow (non-interactive deploy, ownership preflight,
+> session-key signing) are tracked in [PARITY-ISSUES.md](./PARITY-ISSUES.md).
+> Full step-by-step for a first deploy: [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## Security
 
