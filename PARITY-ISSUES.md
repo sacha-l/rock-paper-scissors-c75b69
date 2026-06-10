@@ -78,9 +78,11 @@ without deploying) is already solved in this repo and should be lifted into the
 **original moddable template** (`paritytech/Rock-Paper-Scissors`) so every `pg
 mod` inherits it.
 
-> **Status:** the collision fix (`npm run name:new` + single-source name) is
-> submitted upstream as **[paritytech/Rock-Paper-Scissors#11](https://github.com/paritytech/Rock-Paper-Scissors/pull/11)**.
-> The offline dev mode is offered there as a follow-up.
+> **Status — both submitted upstream:**
+> - Collision-free naming (`npm run name:new` + single-source name):
+>   **[paritytech/Rock-Paper-Scissors#11](https://github.com/paritytech/Rock-Paper-Scissors/pull/11)**
+> - Offline dev mode (`?mock`, in-memory leaderboard + Bulletin blob store):
+>   **[paritytech/Rock-Paper-Scissors#12](https://github.com/paritytech/Rock-Paper-Scissors/pull/12)**
 
 1. **Auto-claim a unique contract name.** `npm run name:new`
    (`scripts/new-contract-name.mjs`) generates a high-entropy, unowned name and
