@@ -81,6 +81,15 @@ mod leaderboard {
             self.is_registered.get(&player.0)
         }
 
+        /// Contract version. Bumping this changes the compiled code hash, which
+        /// changes the deterministic deploy address — so this deploys as a fresh
+        /// contract owned by the current signer instead of colliding with a prior
+        /// deployment at the same address. See DEPLOY-RUN-LOG.md.
+        #[pvm_contract_sdk::method]
+        pub fn version(&self) -> u64 {
+            2
+        }
+
         fn caller(&self) -> Address {
             let mut buf = [0u8; 20];
             self.host().caller(&mut buf);
