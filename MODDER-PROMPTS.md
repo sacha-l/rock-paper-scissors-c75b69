@@ -1,5 +1,7 @@
 # What to prompt a modder with
 
+> Filed upstream as the modding-DX umbrella issue: [paritytech/Rock-Paper-Scissors#13](https://github.com/paritytech/Rock-Paper-Scissors/issues/13) (with PRs #11 + #12).
+
 The hard part of modding a Playground app isn't the code — it's a handful of
 invisible, irreversible facts (who you're signed in as, whether your name is
 claimable, whether your mod even runs) that today only surface *after* a
