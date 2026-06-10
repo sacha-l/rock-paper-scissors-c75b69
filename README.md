@@ -48,6 +48,22 @@ The deploy step binds contract ownership to your signer and is irreversible, so
 whole point: don't burn a phone-signed, funded on-chain deploy to find out a mod
 is broken.
 
+**0. Claim a unique contract name first (one command):**
+
+```bash
+npm run name:new
+```
+
+This is the single most important step for a smooth deploy. The template ships a
+hardcoded contract package name, and on a public registry that name is usually
+**already owned by another signer** — so `pg deploy` fails with
+`already owned by 0x…` (the recurring trap; see `DEVEX-REPORT.md` #1). `npm run
+name:new` generates a fresh high-entropy name (`@rps-<8hex>/leaderboard`) that
+nobody owns and rewrites it everywhere it's needed (`cdm.json` +
+`contracts/leaderboard/Cargo.toml`; the frontend derives it automatically). Run
+it once when you start a mod and the ownership collision simply can't happen.
+Pass your own name if you prefer: `npm run name:new @me/scoreboard`.
+
 **1. Mod and verify locally (fast, no chain):**
 
 ```bash

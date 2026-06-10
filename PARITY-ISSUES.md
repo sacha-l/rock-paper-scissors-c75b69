@@ -68,3 +68,31 @@ There is no way to ask "am I logged in, and as whom" without running the full `p
 The name lives in `Cargo.toml`, `cdm.json` (×2) and `src/utils.ts` (×2). Miss one → runtime resolve failure, not a build error. (The template-side half of this is addressed in PR #1 by deriving the name from `cdm.json`; the Rust/`Cargo.toml` copy remains.)
 
 **Ask:** auto-derive the CDM package name from the authenticated account at deploy time, or provide a single source of truth the build reads.
+
+---
+
+## Reference implementation — make this the template default
+
+The template-side half of the pain (ownership collision + no way to verify a mod
+without deploying) is already solved in this repo and should be lifted into the
+**original moddable template** so every `pg mod` inherits it:
+
+1. **Auto-claim a unique contract name.** `npm run name:new`
+   (`scripts/new-contract-name.mjs`) generates a high-entropy, unowned name and
+   rewrites `cdm.json` + `contracts/leaderboard/Cargo.toml`. The frontend derives
+   the name from `cdm.json` at runtime, so there is one source of truth.
+   → The template should **run this automatically as part of `pg mod`** (or first
+   `npm install`), so a freshly-modded app can never ship a pre-owned name.
+   Fixes #1, #3, #5 at the template level — no `getOwner` required.
+
+2. **Offline dev mode.** `http://localhost:3000/?mock` runs the whole app
+   (register / Solo / leaderboard / profile) against an in-memory contract — no
+   chain, phone, funding or ownership binding (see `src/utils.ts`,
+   `createDevLeaderboard`). This closes the verification loop (#9 in
+   DEVEX-REPORT.md): a developer or coding agent can confirm a mod works *before*
+   the irreversible deploy.
+   → The template should ship this so dev mode is the default for a fresh mod.
+
+With both shipped in the template, the remaining gaps are purely the **CLI/SDK**
+items above (P0/P1) — i.e. only the closed tooling needs Parity-side changes; the
+template-level experience is already solved here and ready to upstream.
