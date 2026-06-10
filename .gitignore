@@ -25,3 +25,6 @@ quests.json
 
 # Playwright MCP local artifacts
 .playwright-mcp/
+
+# Playground deploy artifacts
+.bulletin-deploy/
