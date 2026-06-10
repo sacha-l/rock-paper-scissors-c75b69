@@ -117,8 +117,11 @@ export function useAccountState(): AccountState {
     return state;
 }
 
-// DEV-ONLY: render the UI in a plain browser (no Polkadot host) via `?mock`.
-// Contract/multiplayer calls degrade gracefully; Solo play and stats UI work.
+// DEV-ONLY: run the whole app in a plain browser (no Polkadot host, no deploy,
+// no phone, no funding) via `?mock`. The account is stubbed here and the
+// leaderboard contract is backed by an in-memory store (see createDevLeaderboard),
+// so register / Solo play / leaderboard / profile all work end-to-end. This closes
+// the verification loop the published template is missing (DEVEX-REPORT.md #9).
 // Gated at the call site by `import.meta.env.DEV` so this is dead-code-eliminated
 // from production builds (the whole branch is stripped by Vite/esbuild).
 function maybeMockAccount(): AppAccount | null {
@@ -144,7 +147,8 @@ export async function connectAccount(): Promise<void> {
     if (import.meta.env.DEV) {
         const mock = maybeMockAccount();
         if (mock) {
-            console.warn("[Account] Using DEV mock account (?mock) — no host, contract calls disabled");
+            _devMode = true;
+            console.warn("[Account] DEV mock account (?mock) — in-memory leaderboard, no chain/phone/deploy");
             setState({ status: "ready", account: mock });
             return;
         }
@@ -275,6 +279,63 @@ let _contractManager: ContractManager | null = null;
 let _contract: any = null;
 let _polkadotClient: ReturnType<typeof createClient> | null = null;
 
+// Set true when the `?mock` dev account is in use (see connectAccount). Routes
+// getContract()/ensureMapping() to the in-memory leaderboard instead of the chain.
+let _devMode = false;
+let _devContract: any = null;
+
+// ---------------------------------------------------------------------------
+// Dev-mode leaderboard — in-memory, same method surface as the live `add_points`
+// contract (register / addPoints / isRegistered / getPlayerPoints /
+// getPlayerCount / getPlayerAt). Queries return `{ success, value }` and txs
+// mutate the signing origin, exactly like the on-chain handle, so the pages need
+// zero changes. State persists in localStorage so it survives reloads; a couple
+// of opponents are seeded so a freshly-modded app shows a populated board.
+// DEV-ONLY: only ever reached when `_devMode` is set, which can only happen under
+// `import.meta.env.DEV`.
+// ---------------------------------------------------------------------------
+
+const DEV_LB_KEY = "rps:dev:leaderboard";
+type DevEntry = { address: string; registered: boolean; points: number };
+
+function loadDevState(): DevEntry[] {
+    try {
+        const raw = localStorage.getItem(DEV_LB_KEY);
+        if (raw) return JSON.parse(raw) as DevEntry[];
+    } catch { /* fall through to seed */ }
+    const seed: DevEntry[] = [
+        { address: "0x000000000000000000000000000000000000a11c", registered: true, points: 9 },
+        { address: "0x00000000000000000000000000000000000000b0b", registered: true, points: 4 },
+    ];
+    saveDevState(seed);
+    return seed;
+}
+
+function saveDevState(entries: DevEntry[]): void {
+    try { localStorage.setItem(DEV_LB_KEY, JSON.stringify(entries)); } catch { /* ignore */ }
+}
+
+function createDevLeaderboard(): any {
+    const norm = (a: string) => a.toLowerCase();
+    const find = (addr: string) => loadDevState().find(e => norm(e.address) === norm(addr)) ?? null;
+    const upsert = (addr: string, mut: (e: DevEntry) => void) => {
+        const entries = loadDevState();
+        let e = entries.find(x => norm(x.address) === norm(addr));
+        if (!e) { e = { address: addr, registered: false, points: 0 }; entries.push(e); }
+        mut(e);
+        saveDevState(entries);
+    };
+    const me = () => _state.account?.h160Address ?? "0x0000000000000000000000000000000000000dev";
+    return {
+        register:        { tx: async () => { upsert(me(), e => { e.registered = true; }); return { success: true }; } },
+        addPoints:       { tx: async (delta: bigint) => { upsert(me(), e => { e.points += Number(delta); }); return { success: true }; } },
+        isRegistered:    { query: async (addr: string) => ({ success: true, value: !!find(addr)?.registered }) },
+        getPlayerPoints: { query: async (addr: string) => ({ success: true, value: BigInt(find(addr)?.points ?? 0) }) },
+        getPlayerCount:  { query: async () => ({ success: true, value: BigInt(loadDevState().length) }) },
+        getPlayerAt:     { query: async (index: bigint) => ({ success: true, value: loadDevState()[Number(index)]?.address ?? "0x" }) },
+    };
+}
+
 /**
  * Wake the Asset Hub chain follow before a contract call. The host container
  * tears down the follow when the tab is backgrounded long enough; the first
@@ -335,9 +396,19 @@ function wrapContract(contract: any): any {
 let _cdmJson: any = null;
 let _contractInitPromise: Promise<void> | null = null;
 
+// Single source of truth for the leaderboard package name. Derived from cdm.json
+// at stage time instead of hardcoded, so a rename (or an auto-derived name) only
+// has to change cdm.json — not be hand-synced into this file in two more places,
+// where a miss surfaces as a silent runtime resolve failure (see DEVEX-REPORT.md #5).
+let _libraryName: string | null = null;
+
 /** Stage cdm.json without opening the Asset Hub chain client yet. */
 export function stageCdmJson(cdmJson: any): void {
     _cdmJson = cdmJson;
+    _libraryName =
+        Object.keys(cdmJson?.contracts ?? {})[0] ??
+        Object.keys(cdmJson?.dependencies ?? {})[0] ??
+        null;
 }
 
 /**
@@ -390,8 +461,10 @@ async function ensureContractsReady(): Promise<void> {
             throw new Error("[CDM] Contract init reached without a connected account");
         }
 
+        if (!_libraryName) throw new Error("[CDM] No contract package found in cdm.json");
+
         // Map the product account BEFORE live registry resolution. `fromLiveClient`
-        // immediately calls `registry.getAddress("@rps/leaderboard")` as a view, and
+        // immediately calls `registry.getAddress(<library>)` as a view, and
         // pallet-revive dry-run-fails that call with `Revive::AccountUnmapped` when the
         // query origin isn't mapped — surfacing as ContractLiveAddressResolutionError.
         // Build a plain runtime (no registry query) to perform the mapping first.
@@ -407,10 +480,10 @@ async function ensureContractsReady(): Promise<void> {
                 defaultOrigin: _state.account.address as never,
                 defaultSigner: _state.account.signer,
                 registryOrigin: _state.account.address as never,
-                libraries: ["@rps/leaderboard"],
+                libraries: [_libraryName],
             },
         );
-        _contract = wrapContract(_contractManager.getContract("@rps/leaderboard"));
+        _contract = wrapContract(_contractManager.getContract(_libraryName));
         console.log("[CDM] Contract manager ready (live registry resolution)");
     })();
     return _contractInitPromise;
@@ -426,6 +499,7 @@ export async function initContracts(cdmJson: any): Promise<void> {
  * startup don't compete with a leaderboard chain follow.
  */
 export function getContract(): any {
+    if (_devMode) return (_devContract ??= createDevLeaderboard());
     if (!_cdmJson) return null;
     // Return a proxy that defers chain init until first method call.
     return new Proxy({}, {
@@ -523,6 +597,7 @@ async function mapAccountWithRuntime(
 // during init (before live registry resolution), so for the signed-in account this is a
 // no-op — it stays public for tx call sites (register/updateResult) as an explicit guard.
 export async function ensureMapping(account: AppAccount): Promise<void> {
+    if (_devMode) return; // no chain in dev mode — nothing to map
     if (_mappedAccounts.has(account.address)) return;
     await ensureContractsReady();
     if (!_contractManager) throw new Error("Contract manager not ready");
