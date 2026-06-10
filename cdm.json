@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "@rps/leaderboard": "latest"
+    "@whiterabbit-c75b69/leaderboard": "latest"
   },
   "contracts": {
-    "@rps/leaderboard": {
+    "@whiterabbit-c75b69/leaderboard": {
       "version": 0,
-      "address": "0x85aaf18be2D2a482530A822A6722fb17E65f945F",
+      "address": "0xD50B427CFc238d698E476b929d23BF37DBAf4319",
       "abi": [
         {
           "inputs": [],
@@ -15,27 +15,18 @@
         {
           "inputs": [],
           "name": "register",
-          "outputs": [
-            {
-              "name": "",
-              "type": "uint64"
-            }
-          ],
+          "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
         },
         {
           "inputs": [
             {
-              "name": "new_cid",
-              "type": "string"
-            },
-            {
               "name": "points_delta",
               "type": "int64"
             }
           ],
-          "name": "updateResult",
+          "name": "addPoints",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
@@ -76,23 +67,6 @@
               "type": "address"
             }
           ],
-          "name": "getPlayerCid",
-          "outputs": [
-            {
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "name": "player",
-              "type": "address"
-            }
-          ],
           "name": "getPlayerPoints",
           "outputs": [
             {
@@ -121,41 +95,6 @@
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "name": "Panic",
-          "type": "error"
-        },
-        {
-          "inputs": [
-            {
-              "name": "",
-              "type": "string"
-            }
-          ],
-          "name": "Error",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "AlreadyRegistered",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "NotRegistered",
-          "type": "error"
-        },
-        {
-          "inputs": [],
-          "name": "IndexOutOfBounds",
-          "type": "error"
-        },
-        {
           "inputs": [],
           "name": "InvalidCalldata",
           "type": "error"
@@ -181,7 +120,7 @@
           "type": "error"
         }
       ],
-      "metadataCid": "bafk2bzacect3ygup6jkp3vcslp26lmlwrwpt5mvugec43o3ivuaho5xlpxmo4"
+      "metadataCid": "bafk2bzacedgg6jau4yotz76ebkx26n4spbadj6wqnemcm6q4yit74q253plca"
     }
   },
   "registry": "0xf62c2ece29cd8df2e10040ecfa5a894a5c5d9cb0"

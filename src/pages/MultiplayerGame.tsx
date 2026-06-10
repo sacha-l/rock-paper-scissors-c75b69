@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import type { AppAccount } from "../utils.ts";
 import { StatementStoreClient } from "@parity/product-sdk-statement-store";
-import type { Move, Round, GameData, PlayerData, RoundResult } from "../types.ts";
+import type { Move, Round, RoundResult } from "../types.ts";
 import {
-    uploadToBulletin, ensureMapping, getContract, withTimeout,
-    IPFS_GATEWAY, short, asBytes20,
+    ensureMapping, getContract, withTimeout, short, asBytes20,
 } from "../utils.ts";
 import { MOVES, MOVE_EMOJI, MOVE_LABEL, determineWinner, pointsForResult, isMatchOver } from "../game.ts";
 
@@ -270,33 +269,6 @@ export default function MultiplayerGame({ account, roomCode, isCreator, bestOf, 
                 return;
             }
 
-            let playerData: PlayerData = {
-                player: myId, totalGames: 0, wins: 0, losses: 0, draws: 0, points: 0, games: [],
-            };
-            try {
-                const cidRes = await lb.getPlayerCid.query(asBytes20(myId));
-                if (cidRes.success && cidRes.value) {
-                    const resp = await fetch(IPFS_GATEWAY + cidRes.value);
-                    if (resp.ok) playerData = await resp.json();
-                }
-            } catch { /* first time */ }
-
-            const game: GameData = {
-                id: playerData.games.length + 1, mode: "multiplayer",
-                opponent: opponentIdRef.current ?? "unknown", roomCode,
-                bestOf: bestOfRef.current, rounds,
-                result: overallResult, pointsChange: pts,
-                timestamp: Math.floor(Date.now() / 1000),
-            };
-            playerData.games.push(game);
-            playerData.totalGames++;
-            if (overallResult === "win") playerData.wins++;
-            else if (overallResult === "loss") playerData.losses++;
-            else playerData.draws++;
-            playerData.points += pts;
-
-            setStatusMsg("Uploading to Bulletin...");
-            const newCid = await uploadToBulletin(account, new TextEncoder().encode(JSON.stringify(playerData)));
             await ensureMapping(account);
 
             const regRes = await lb.isRegistered.query(asBytes20(myId));
@@ -305,7 +277,7 @@ export default function MultiplayerGame({ account, roomCode, isCreator, bestOf, 
                 await withTimeout(lb.register.tx(), 120_000, "register");
             }
             setStatusMsg("Updating leaderboard...");
-            await withTimeout(lb.updateResult.tx(newCid, BigInt(pts)), 120_000, "update");
+            await withTimeout(lb.addPoints.tx(BigInt(pts)), 120_000, "update");
             setStatusMsg("Saved!");
         } catch (err) {
             console.error("[MPGame] Save error:", err);
