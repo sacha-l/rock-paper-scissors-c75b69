@@ -64,6 +64,9 @@ nobody owns and rewrites it everywhere it's needed (`cdm.json` +
 it once when you start a mod and the ownership collision simply can't happen.
 Pass your own name if you prefer: `npm run name:new @me/scoreboard`.
 
+> This fix is submitted upstream as [paritytech/Rock-Paper-Scissors#11](https://github.com/paritytech/Rock-Paper-Scissors/pull/11),
+> so once merged every `pg mod` of the template gets it by default.
+
 **1. Mod and verify locally (fast, no chain):**
 
 ```bash

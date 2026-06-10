@@ -75,7 +75,12 @@ The name lives in `Cargo.toml`, `cdm.json` (×2) and `src/utils.ts` (×2). Miss 
 
 The template-side half of the pain (ownership collision + no way to verify a mod
 without deploying) is already solved in this repo and should be lifted into the
-**original moddable template** so every `pg mod` inherits it:
+**original moddable template** (`paritytech/Rock-Paper-Scissors`) so every `pg
+mod` inherits it.
+
+> **Status:** the collision fix (`npm run name:new` + single-source name) is
+> submitted upstream as **[paritytech/Rock-Paper-Scissors#11](https://github.com/paritytech/Rock-Paper-Scissors/pull/11)**.
+> The offline dev mode is offered there as a follow-up.
 
 1. **Auto-claim a unique contract name.** `npm run name:new`
    (`scripts/new-contract-name.mjs`) generates a high-entropy, unowned name and
