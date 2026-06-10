@@ -18,7 +18,7 @@ path = "lib.rs"
 abi-gen = ["pvm-contract-sdk/abi-gen"]
 
 [package.metadata.cdm]
-package = "@whiterabbit-c75b69/leaderboard"
+package = "@rps-cf8a-c7e67f/leaderboard"
 
 [dependencies]
 pvm-contract-sdk = { workspace = true }

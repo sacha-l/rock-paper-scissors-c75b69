@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "@whiterabbit-c75b69/leaderboard": "latest"
+    "@rps-cf8a-c7e67f/leaderboard": "latest"
   },
   "contracts": {
-    "@whiterabbit-c75b69/leaderboard": {
+    "@rps-cf8a-c7e67f/leaderboard": {
       "version": 0,
       "address": "0xD50B427CFc238d698E476b929d23BF37DBAf4319",
       "abi": [
