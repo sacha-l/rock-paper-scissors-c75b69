@@ -5,7 +5,6 @@ import SoloGame from "./pages/SoloGame.tsx";
 import MultiplayerLobby from "./pages/MultiplayerLobby.tsx";
 import MultiplayerGame from "./pages/MultiplayerGame.tsx";
 import Leaderboard from "./pages/Leaderboard.tsx";
-import PlayerHistory from "./pages/PlayerHistory.tsx";
 
 // CDM init — fails gracefully if cdm.json doesn't exist yet
 try {
@@ -21,8 +20,7 @@ type View =
     | { page: "solo" }
     | { page: "lobby" }
     | { page: "multiplayer"; roomCode: string; isCreator: boolean; bestOf: number }
-    | { page: "leaderboard" }
-    | { page: "history"; playerAddress: string };
+    | { page: "leaderboard" };
 
 export default function App() {
     const { status, account, error } = useAccountState();
@@ -63,7 +61,7 @@ export default function App() {
     return (
         <>
             <header>
-                <h1 onClick={goHome} style={{ cursor: "pointer" }}>RPS</h1>
+                <h1 onClick={goHome} style={{ cursor: "pointer" }}>RPS ⚡ v2</h1>
                 <span className="account-select" title={account.address}>
                     {account.name ?? short(account.address)}
                 </span>
@@ -104,18 +102,7 @@ export default function App() {
                 />
             )}
 
-            {view.page === "leaderboard" && (
-                <Leaderboard
-                    onPlayerClick={addr => setView({ page: "history", playerAddress: addr })}
-                />
-            )}
-
-            {view.page === "history" && (
-                <PlayerHistory
-                    playerAddress={view.playerAddress}
-                    onBack={() => setView({ page: "leaderboard" })}
-                />
-            )}
+            {view.page === "leaderboard" && <Leaderboard />}
         </>
     );
 }

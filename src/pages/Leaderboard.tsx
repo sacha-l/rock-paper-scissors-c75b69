@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { getContract, short, asBytes20 } from "../utils.ts";
 import type { LeaderboardEntry } from "../types.ts";
 
-export default function Leaderboard({ onPlayerClick }: {
-    onPlayerClick: (address: string) => void;
-}) {
+export default function Leaderboard() {
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -70,11 +68,7 @@ export default function Leaderboard({ onPlayerClick }: {
             <h2>Leaderboard</h2>
             <div className="lb-table">
                 {entries.map(e => (
-                    <div
-                        key={e.address}
-                        className="lb-row"
-                        onClick={() => onPlayerClick(e.address)}
-                    >
+                    <div key={e.address} className="lb-row">
                         <div className={`lb-rank ${e.rank === 1 ? "gold" : e.rank === 2 ? "silver" : e.rank === 3 ? "bronze" : ""}`}>
                             #{e.rank}
                         </div>
